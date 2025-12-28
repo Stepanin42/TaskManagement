@@ -49,9 +49,7 @@ public class TaskService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskService.class);
 
-    /**
-     * Создание задачи
-     */
+    //Создание задачи
     @Transactional
     public Task createTask(TaskCreateRequest request) throws ValidationException {
         // Валидация
@@ -92,9 +90,7 @@ public class TaskService {
         return saved;
     }
 
-    /**
-     * Обновление статуса задачи
-     */
+    //Обновление статуса задачи
     @Transactional
     public Task updateStatus(Long taskId, TaskStatus newStatus) {
         Task task = getTaskById(taskId);
@@ -121,9 +117,7 @@ public class TaskService {
         return updated;
     }
 
-    /**
-     * Обновление приоритета
-     */
+    //Обновление приоритета
     @Transactional
     public Task updatePriority(Long taskId, TaskPriority newPriority) {
         Task task = getTaskById(taskId);
@@ -137,9 +131,7 @@ public class TaskService {
         return updated;
     }
 
-    /**
-     * Назначение задачи пользователю
-     */
+    //Назначение задачи пользователю
     @Transactional
     public Task assignTask(Long taskId, Long userId) {
         Task task = getTaskById(taskId);
@@ -163,24 +155,18 @@ public class TaskService {
         return updated;
     }
 
-    /**
-     * Получение задачи по ID
-     */
+    //Получение задачи по ID
     public Task getTaskById(Long id) {
         return Optional.ofNullable(taskRepository.findById(id))
                 .orElseThrow(() -> new NotFoundException("Task not found: " + id));
     }
 
-    /**
-     * Получение всех задач
-     */
+    //Получение всех задач
     public List<Task> getAllTasks() {
         return taskRepository.listAll();
     }
 
-    /**
-     * Фильтрация задач
-     */
+    //Фильтрация задач
     public List<Task> filterTasks(TaskStatus status, TaskPriority priority, Long userId) {
         List<Task> tasks = taskRepository.listAll();
 
@@ -205,23 +191,18 @@ public class TaskService {
         return tasks;
     }
 
-    /**
-     * Получение просроченных задач
-     */
+    //Получение просроченных задач
     public List<Task> getOverdueTasks() {
         return taskRepository.findOverdue();
     }
 
-    /**
-     * Получение задач, срок которых истекает скоро
-     */
+    //Получение задач срок которых истекает скоро
     public List<Task> getTasksDueSoon(int days) {
         return taskRepository.findDueSoon(days);
     }
 
-    /**
-     * Удаление задачи
-     */
+
+    //Удаление задачи
     @Transactional
     public void deleteTask(Long id) {
         Task task = getTaskById(id);
@@ -230,9 +211,6 @@ public class TaskService {
         LOG.info("Deleted task: {} (ID: {})", task.title, id);
     }
 
-    /**
-     * Валидация запроса
-     */
     private void validateTaskRequest(TaskCreateRequest request) throws ValidationException {
         Set<ConstraintViolation<TaskCreateRequest>> violations = validator.validate(request);
         if (!violations.isEmpty()) {
