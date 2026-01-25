@@ -1,9 +1,11 @@
 package com.taskmanagement.resource;
 
+import com.taskmanagement.model.dto.UserCreateDto;
 import com.taskmanagement.model.dto.UserStatistics;
 import com.taskmanagement.model.entity.User;
 import com.taskmanagement.model.repository.UserRepository;
 import com.taskmanagement.service.StatisticsService;
+import com.taskmanagement.service.UserService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -19,6 +21,9 @@ public class UserResource {
 
     @Inject
     UserRepository userRepository;
+
+    @Inject
+    UserService userService;
 
     @Inject
     StatisticsService statisticsService;
@@ -51,8 +56,8 @@ public class UserResource {
     }
 
     @POST
-    public Response createUser(User user) {
-        User saved = userRepository.save(user);
+    public Response createUser(UserCreateDto user) {
+        User saved = userService.createUser(user);
         return Response.status(Response.Status.CREATED)
                 .entity(saved)
                 .build();
