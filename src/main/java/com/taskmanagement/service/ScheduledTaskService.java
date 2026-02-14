@@ -40,6 +40,7 @@ public class ScheduledTaskService {
         for (Task task : overdueTasks) {
             if (task.status != TaskStatus.OVERDUE) {
                 task.status = TaskStatus.OVERDUE;
+                LOG.info("Overdue task: {}", task.title);
                 em.merge(task);
                 notificationService.notifyOverdueTask(task);
             }
@@ -55,10 +56,11 @@ public class ScheduledTaskService {
     public void sendUpcomingDeadlineReminders() {
         LOG.info("Sending deadline reminders...");
 
-        List<Task> tasksDueSoon = taskRepository.findDueSoon(1); // Завтра
+        List<Task> tasksDueSoon = taskRepository.findDueSoon(1); // Завтрак
 
         for (Task task : tasksDueSoon) {
             notificationService.notifyUpcomingDeadline(task);
+            LOG.info("Upcoming deadline reminder: {}", task.title);
         }
 
         LOG.info("Sent {} deadline reminders", tasksDueSoon.size());

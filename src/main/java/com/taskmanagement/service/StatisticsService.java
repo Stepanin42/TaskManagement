@@ -11,6 +11,9 @@ import com.taskmanagement.model.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.time.Duration;
 import java.util.List;
@@ -25,6 +28,8 @@ public class StatisticsService {
 
     @Inject
     UserRepository userRepository;
+
+    private final static Logger LOG = LoggerFactory.getLogger(StatisticsService.class);
 
     /**
      * Статистика по задачам
@@ -46,46 +51,60 @@ public class StatisticsService {
      * Статистика по пользователю
      */
     public UserStatistics getUserStatistics(Long userId) {
-        User user = Optional.of(userRepository.findById(userId))
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        LOG.info("Get user statistics for {}", userId);
+        MDC.put("userId", String.valueOf(userId));
 
-        List<Task> userTasks = taskRepository.findByUser(userId);
+        try {
+            User user = Optional.of(userRepository.findById(userId))
+                    .orElseThrow(() -> new NotFoundException("User not found"));
 
-        long totalTasks = userTasks.size();
-        long completedTasks = userTasks.stream()
-                .filter(t -> t.status == TaskStatus.DONE)
-                .count();
-        long activeTasks = userTasks.stream()
-                .filter(t -> t.status != TaskStatus.DONE && t.status != TaskStatus.CANCELLED)
-                .count();
+            List<Task> userTasks = taskRepository.findByUser(userId);
 
-        // Средняя продолжительность выполнения
-        double averageCompletionTime = userTasks.stream()
-                .filter(t -> t.status == TaskStatus.DONE && t.completedAt != null)
-                .mapToLong(t -> Duration.between(t.createdAt, t.completedAt).toHours())
-                .average()
-                .orElse(0.0);
+            long totalTasks = userTasks.size();
+            long completedTasks = userTasks.stream()
+                    .filter(t -> t.status == TaskStatus.DONE)
+                    .count();
+            long activeTasks = userTasks.stream()
+                    .filter(t -> t.status != TaskStatus.DONE && t.status != TaskStatus.CANCELLED)
+                    .count();
 
-        // Процент выполнения в срок
-        long completedOnTime = userTasks.stream()
-                .filter(t -> t.status == TaskStatus.DONE
-                        && t.dueDate != null
-                        && t.completedAt != null
-                        && !t.completedAt.toLocalDate().isAfter(t.dueDate))
-                .count();
+            // Средняя продолжительность выполнения
+            double averageCompletionTime = userTasks.stream()
+                    .filter(t -> t.status == TaskStatus.DONE && t.completedAt != null)
+                    .mapToLong(t -> Duration.between(t.createdAt, t.completedAt).toHours())
+                    .average()
+                    .orElse(0.0);
 
-        double onTimePercentage = completedTasks > 0
-                ? (completedOnTime * 100.0 / completedTasks)
-                : 0.0;
+            // Процент выполнения в срок
+            long completedOnTime = userTasks.stream()
+                    .filter(t -> t.status == TaskStatus.DONE
+                            && t.dueDate != null
+                            && t.completedAt != null
+                            && !t.completedAt.toLocalDate().isAfter(t.dueDate))
+                    .count();
 
-        return new UserStatistics(
-                user.name,
-                totalTasks,
-                completedTasks,
-                activeTasks,
-                averageCompletionTime,
-                onTimePercentage
-        );
+            double onTimePercentage = completedTasks > 0
+                    ? (completedOnTime * 100.0 / completedTasks)
+                    : 0.0;
+
+            return new UserStatistics(
+                    user.name,
+                    totalTasks,
+                    completedTasks,
+                    activeTasks,
+                    averageCompletionTime,
+                    onTimePercentage
+            );
+
+        } catch (NotFoundException e) {
+            LOG.error("User statistic error not found: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            LOG.error("User statistics error: {}", e.getMessage());
+            throw e;
+        } finally {
+            MDC.remove("userId");
+        }
     }
 
     /**
