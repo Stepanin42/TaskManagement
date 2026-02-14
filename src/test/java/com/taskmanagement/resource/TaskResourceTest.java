@@ -1,6 +1,7 @@
 package com.taskmanagement.resource;
 
 import com.taskmanagement.model.dto.TaskCreateRequest;
+import com.taskmanagement.model.dto.UserCreateDto;
 import com.taskmanagement.model.entity.User;
 import com.taskmanagement.model.enums.TaskPriority;
 import io.quarkus.test.junit.QuarkusTest;
@@ -235,9 +236,9 @@ public class TaskResourceTest {
     @Test
     @Order(13)
     void shouldCreateTaskWithAssignee() {
-        User user = new User();
-        user.name = "Test User";
-        user.email = "test@example.com";
+        UserCreateDto user = new UserCreateDto();
+        user.setName("Test User");
+        user.setEmail("test@example.com");
 
         createdUserId = given()
                 .contentType(ContentType.JSON)

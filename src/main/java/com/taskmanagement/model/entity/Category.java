@@ -1,5 +1,6 @@
 package com.taskmanagement.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -16,9 +17,7 @@ public class Category {
     @Column(name = "name", unique = true)
     public String name;
 
-    @Column(name = "color")
-    public String color;
-
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
     public List<Task> tasks = new ArrayList<>();
 }

@@ -3,7 +3,6 @@ package com.taskmanagement.model.entity;
 import com.taskmanagement.model.enums.TaskPriority;
 import com.taskmanagement.model.enums.TaskStatus;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;

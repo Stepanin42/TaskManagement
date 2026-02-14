@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class NotificationService {
     private static final Logger LOG = LoggerFactory.getLogger(NotificationService.class);
+    //Логи тут для имитации
+
 
     /**
      * Уведомление о назначении задачи
